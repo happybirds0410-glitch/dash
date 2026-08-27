@@ -14,15 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Assemble index.html when all parts exist
+      - name: Assemble chatbot index.html
         shell: bash
         run: |
-          count=$(find .chatbot_parts -maxdepth 1 -type f -name 'part*.txt' 2>/dev/null | wc -l)
-          if [ "$count" -ne 10 ]; then
-            echo "Waiting for all 10 parts. Current: $count"
-            exit 0
-          fi
-          cat .chatbot_parts/part*.txt | base64 -d > chatbot.html.gz
+          test -f .chatbot_parts/part00.txt
+          test -f .chatbot_parts/part01.txt
+          test -f .chatbot_parts/rest.txt
+          cat .chatbot_parts/part00.txt .chatbot_parts/part01.txt .chatbot_parts/rest.txt | base64 -d > chatbot.html.gz
           gzip -dc chatbot.html.gz > index.html
           rm chatbot.html.gz
           git config user.name 'github-actions[bot]'
