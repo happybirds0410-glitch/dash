@@ -17,10 +17,9 @@ jobs:
       - name: Assemble chatbot index.html
         shell: bash
         run: |
-          test -f .chatbot_parts/part00.txt
-          test -f .chatbot_parts/part01.txt
-          test -f .chatbot_parts/rest.txt
-          cat .chatbot_parts/part00.txt .chatbot_parts/part01.txt .chatbot_parts/rest.txt | base64 -d > chatbot.html.gz
+          count=$(find .chatbot_parts -maxdepth 1 -type f -name 'part??.txt' | wc -l)
+          test "$count" -eq 10
+          cat .chatbot_parts/part00.txt .chatbot_parts/part01.txt .chatbot_parts/part02.txt .chatbot_parts/part03.txt .chatbot_parts/part04.txt .chatbot_parts/part05.txt .chatbot_parts/part06.txt .chatbot_parts/part07.txt .chatbot_parts/part08.txt .chatbot_parts/part09.txt | base64 -d > chatbot.html.gz
           gzip -dc chatbot.html.gz > index.html
           rm chatbot.html.gz
           git config user.name 'github-actions[bot]'
