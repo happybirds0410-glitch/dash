@@ -1,0 +1,36 @@
+name: Build Gemini contract chatbot
+
+on:
+  push:
+    paths:
+      - '.chatbot_parts/**'
+      - '.github/workflows/build-chatbot.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble index.html when all parts exist
+        shell: bash
+        run: |
+          count=$(find .chatbot_parts -maxdepth 1 -type f -name 'part*.txt' 2>/dev/null | wc -l)
+          if [ "$count" -ne 7 ]; then
+            echo "Waiting for all 7 parts. Current: $count"
+            exit 0
+          fi
+          cat .chatbot_parts/part*.txt | base64 -d > chatbot.html.gz
+          gzip -dc chatbot.html.gz > index.html
+          rm chatbot.html.gz
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then
+            echo 'No changes'
+            exit 0
+          fi
+          git commit -m 'Build Gemini contract guideline chatbot'
+          git push
